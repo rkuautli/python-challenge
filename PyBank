@@ -2,55 +2,46 @@ import os
 import csv
 
 # Path to collect data from the Resources folder
-csvpath = os.path.join('Resources', 'budget_data.csv')
+budget_data_csv = os.path.join("Resources", "budget_data.csv")
 
 # Initialize variables
 total_months = 0
 net_total = 0
-prev_profit_loss = 0
-total_change = 0
-average_change = 0
-greatest_increase = ["", 0]
-greatest_decrease = ["", 9999999999999999999]
-change_list = []
+previous_profit = 0
+profit_changes = []
+months = []
 
 # Read in the CSV file
-with open(csvpath) as csvfile:
+with open(budget_data_csv, 'r') as csvfile:
     csvreader = csv.reader(csvfile, delimiter=',')
-    
-    # Skip the header row
-    csv_header = next(csvreader)
-    
-    # Process each row in the CSV
+    csv_header = next(csvreader)  # Skip header row
+
+    # Iterate through the rows in the CSV
     for row in csvreader:
         # Calculate total number of months
         total_months += 1
+        months.append(row[0])  # Collect the months
         
-        # Calculate net total amount of "Profit/Losses" over the entire period
+        # Calculate net total amount of Profit/Losses
         net_total += int(row[1])
         
-        # Calculate change from current month to previous month
+        # Calculate change in profit from previous month to current month
         if total_months > 1:
-            current_change = int(row[1]) - prev_profit_loss
-            change_list.append(current_change)
+            profit_change = int(row[1]) - previous_profit
+            profit_changes.append(profit_change)
         
-        # Update previous profit/loss for next iteration
-        prev_profit_loss = int(row[1])
-        
-        # Calculate greatest increase in profits (date and amount)
-        if current_change > greatest_increase[1]:
-            greatest_increase[0] = row[0]
-            greatest_increase[1] = current_change
-        
-        # Calculate greatest decrease in profits (date and amount)
-        if current_change < greatest_decrease[1]:
-            greatest_decrease[0] = row[0]
-            greatest_decrease[1] = current_change
+        previous_profit = int(row[1])
 
-# Calculate average change
-if len(change_list) > 0:
-    total_change = sum(change_list)
-    average_change = round(total_change / len(change_list), 2)
+# Calculate average change in profit/losses
+average_change = round(sum(profit_changes) / len(profit_changes), 2)
+
+# Find greatest increase and decrease in profits
+greatest_increase = max(profit_changes)
+greatest_decrease = min(profit_changes)
+
+# Find corresponding months for greatest increase and decrease
+increase_month = months[profit_changes.index(greatest_increase)]
+decrease_month = months[profit_changes.index(greatest_decrease)]
 
 # Print results to terminal
 print("Financial Analysis")
@@ -58,17 +49,17 @@ print("----------------------------")
 print(f"Total Months: {total_months}")
 print(f"Total: ${net_total}")
 print(f"Average Change: ${average_change}")
-print(f"Greatest Increase in Profits: {greatest_increase[0]} (${greatest_increase[1]})")
-print(f"Greatest Decrease in Profits: {greatest_decrease[0]} (${greatest_decrease[1]})")
+print(f"Greatest Increase in Profits: {increase_month} (${greatest_increase})")
+print(f"Greatest Decrease in Profits: {decrease_month} (${greatest_decrease})")
 
-# Export results to text file
-output_path = os.path.join('output', 'financial_analysis.txt')
-with open(output_path, 'w') as file:
+# Write results to text file
+output_file = os.path.join("analysis", "financial_analysis.txt")
+with open(output_file, 'w') as file:
     file.write("Financial Analysis\n")
     file.write("----------------------------\n")
     file.write(f"Total Months: {total_months}\n")
     file.write(f"Total: ${net_total}\n")
     file.write(f"Average Change: ${average_change}\n")
-    file.write(f"Greatest Increase in Profits: {greatest_increase[0]} (${greatest_increase[1]})\n")
-    file.write(f"Greatest Decrease in Profits: {greatest_decrease[0]} (${greatest_decrease[1]})\n")
+    file.write(f"Greatest Increase in Profits: {increase_month} (${greatest_increase})\n")
+    file.write(f"Greatest Decrease in Profits: {decrease_month} (${greatest_decrease})\n")
 

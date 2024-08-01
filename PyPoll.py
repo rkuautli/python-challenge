@@ -61,4 +61,3 @@ with open(output_file, 'w') as file:
     file.write("-------------------------\n")
     file.write(f"Winner: {winner}\n")
     file.write("-------------------------\n")
-
